@@ -46,6 +46,7 @@ start() ->
 
 -spec(start_listener(listener()) -> {ok, pid()} | {error, term()}).
 start_listener({Proto, ListenOn, Options}) ->
+
     StartRet = start_listener(Proto, ListenOn, Options),
     case StartRet of
         {ok, _} -> io:format("Start mqtt:~s listener on ~s successfully.~n",
@@ -61,11 +62,11 @@ start_listener({Proto, ListenOn, Options}) ->
       -> {ok, pid()} | {error, term()}).
 start_listener(tcp, ListenOn, Options) ->
     start_mqtt_listener('mqtt:tcp', ListenOn, Options);
-    
+
 %% Start Trap listener
 start_listener(trap, ListenOn, Options) ->
-        start_trap_listener('mqtt:trap', ListenOn, Options);
-    
+        start_trap_listener('tcp:trap', ListenOn, Options);
+
 
 %% Start MQTT/TLS listener
 start_listener(Proto, ListenOn, Options) when Proto == ssl; Proto == tls ->
