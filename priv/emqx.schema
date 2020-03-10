@@ -1777,6 +1777,7 @@ end}.
 
     lists:flatten([TcpListeners(Type, Name) || {["listener", Type, Name], ListenOn}
                                                <- cuttlefish_variable:filter_by_prefix("listener.tcp", Conf)
+                                               ++ cuttlefish_variable:filter_by_prefix("listener.trap", Conf)
                                                ++ cuttlefish_variable:filter_by_prefix("listener.ws", Conf)]
                   ++
                   [SslListeners(Type, Name) || {["listener", Type, Name], ListenOn}

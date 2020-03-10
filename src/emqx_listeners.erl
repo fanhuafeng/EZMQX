@@ -61,6 +61,11 @@ start_listener({Proto, ListenOn, Options}) ->
       -> {ok, pid()} | {error, term()}).
 start_listener(tcp, ListenOn, Options) ->
     start_mqtt_listener('mqtt:tcp', ListenOn, Options);
+    
+%% Start Trap listener
+start_listener(trap, ListenOn, Options) ->
+        start_trap_listener('mqtt:trap', ListenOn, Options);
+    
 
 %% Start MQTT/TLS listener
 start_listener(Proto, ListenOn, Options) when Proto == ssl; Proto == tls ->
@@ -80,6 +85,15 @@ start_mqtt_listener(Name, ListenOn, Options) ->
     SockOpts = esockd:parse_opt(Options),
     esockd:open(Name, ListenOn, merge_default(SockOpts),
                 {emqx_connection, start_link, [Options -- SockOpts]}).
+
+%% Start trap listener
+start_trap_listener(Name, ListenOn, Options) ->
+    io:format("start_trap_listener: Name :~p ListenOn:~p Options:~p ", [Name, ListenOn, Options]),
+    SockOpts = esockd:parse_opt(Options),
+    esockd:open(Name, ListenOn, merge_default(SockOpts),
+        {emqx_trap_connection, start_link, [Options -- SockOpts]}).
+
+
 
 start_http_listener(Start, Name, ListenOn, RanchOpts, ProtoOpts) ->
     Start(ws_name(Name, ListenOn), with_port(ListenOn, RanchOpts), ProtoOpts).
