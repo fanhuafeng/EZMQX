@@ -68,8 +68,22 @@ handle_cast(_Request, State = #emqx_trap_connection_state{}) ->
     {noreply, NewState :: #emqx_trap_connection_state{}} |
     {noreply, NewState :: #emqx_trap_connection_state{}, timeout() | hibernate} |
     {stop, Reason :: term(), NewState :: #emqx_trap_connection_state{}}).
+
 handle_info(_Info, State = #emqx_trap_connection_state{}) ->
-    {noreply, State}.
+    {noreply, State};
+
+handle_info({tcp, _RemoteSocket, BinData}, State) ->
+    io:format("Recveived data:~p", [BinData]),
+
+    {noreply, State};
+
+handle_info({tcp_error, Socket, Reason}, State) ->
+    io:format("handle_info tcp_error ~p , Error from: ~p~n", [Reason, Socket]),
+    {stop, normal, State};
+
+handle_info({tcp_closed, Socket}, State) ->
+    io:format("Socket cloesd: ~p ~n", [Socket]),
+    {stop, normal, State}.
 
 %% @private
 %% @doc This function is called by a gen_server when it is about to
