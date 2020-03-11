@@ -36,9 +36,7 @@ init(_Parent, Transport, RawSocket, _Options) ->
             {ok, {IP, Port}} = Transport:peername(NewSocket),
             io:format("New socket connected: Ip is :~p and port is ~p ~n", [IP, Port]),
             Transport:setopts(RawSocket, [{active, once}]),
-            %% 先挂起来等认证,防止恶意连接
-            %% erlang:send_after(3000, self(), wait_for_auth),
-            %% 进入下一次循环
+
             gen_server:enter_loop(?MODULE, [], #emqx_trap_connection_state{});
         {error, Reason} ->
             ok = Transport:fast_close(RawSocket),
@@ -54,40 +52,16 @@ exit_on_sock_error(timeout) ->
 exit_on_sock_error(Reason) ->
     erlang:exit({shutdown, Reason}).
 
-%% @private
-%% @doc Handling call messages
--spec(handle_call(Request :: term(), From :: {pid(), Tag :: term()},
-    State :: #emqx_trap_connection_state{}) ->
-    {reply, Reply :: term(), NewState :: #emqx_trap_connection_state{}} |
-    {reply, Reply :: term(), NewState :: #emqx_trap_connection_state{}, timeout() | hibernate} |
-    {noreply, NewState :: #emqx_trap_connection_state{}} |
-    {noreply, NewState :: #emqx_trap_connection_state{}, timeout() | hibernate} |
-    {stop, Reason :: term(), Reply :: term(), NewState :: #emqx_trap_connection_state{}} |
-    {stop, Reason :: term(), NewState :: #emqx_trap_connection_state{}}).
-handle_call(_Request, _From, State = #emqx_trap_connection_state{}) ->
+handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
-%% @private
-%% @doc Handling cast messages
--spec(handle_cast(Request :: term(), State :: #emqx_trap_connection_state{}) ->
-    {noreply, NewState :: #emqx_trap_connection_state{}} |
-    {noreply, NewState :: #emqx_trap_connection_state{}, timeout() | hibernate} |
-    {stop, Reason :: term(), NewState :: #emqx_trap_connection_state{}}).
-handle_cast(_Request, State = #emqx_trap_connection_state{}) ->
-    {noreply, State}.
 
-%% @private
-%% @doc Handling all non call/cast messages
--spec(handle_info(Info :: timeout() | term(), State :: #emqx_trap_connection_state{}) ->
-    {noreply, NewState :: #emqx_trap_connection_state{}} |
-    {noreply, NewState :: #emqx_trap_connection_state{}, timeout() | hibernate} |
-    {stop, Reason :: term(), NewState :: #emqx_trap_connection_state{}}).
+%%
+%% 消息接收处理
+%%
 
-handle_info(_Info, State = #emqx_trap_connection_state{}) ->
-    {noreply, State};
-
-handle_info({tcp, _RemoteSocket, BinData}, State) ->
-    io:format("Recveived data:~p", [BinData]),
+handle_info({tcp, RemoteSocket, BinData}, State) ->
+    io:format("From: ~p ~p ~n", [RemoteSocket, BinData]),
 
     {noreply, State};
 
@@ -96,27 +70,19 @@ handle_info({tcp_error, Socket, Reason}, State) ->
     {stop, normal, State};
 
 handle_info({tcp_closed, Socket}, State) ->
-    io:format("Socket cloesd: ~p ~n", [Socket]),
-    {stop, normal, State}.
+    io:format("tcp_closed  ~p~n", [Socket]),
 
-%% @private
-%% @doc This function is called by a gen_server when it is about to
-%% terminate. It should be the opposite of Module:init/1 and do any
-%% necessary cleaning up. When it returns, the gen_server terminates
-%% with Reason. The return value is ignored.
--spec(terminate(Reason :: (normal | shutdown | {shutdown, term()} | term()),
-    State :: #emqx_trap_connection_state{}) -> term()).
-terminate(_Reason, _State = #emqx_trap_connection_state{}) ->
+    {stop, normal, State};
+
+handle_info(_, State) ->
+    {noreply, State}.
+
+terminate(_Reason, _State) ->
     ok.
 
-%% @private
-%% @doc Convert process state when code is changed
--spec(code_change(OldVsn :: term() | {down, term()}, State :: #emqx_trap_connection_state{},
-    Extra :: term()) ->
-    {ok, NewState :: #emqx_trap_connection_state{}} | {error, Reason :: term()}).
-code_change(_OldVsn, State = #emqx_trap_connection_state{}, _Extra) ->
+code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-%%%===================================================================
-%%% Internal functions
-%%%===================================================================
+
+handle_cast(_Msg, State) ->
+    {noreply, State}.
