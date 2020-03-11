@@ -20,18 +20,18 @@
 -include("emqx_mqtt.hrl").
 
 %% APIs
--export([ start/0
-        , restart/0
-        , stop/0
-        ]).
+-export([start/0
+    , restart/0
+    , stop/0
+]).
 
--export([ start_listener/1
-        , start_listener/3
-        , stop_listener/1
-        , stop_listener/3
-        , restart_listener/1
-        , restart_listener/3
-        ]).
+-export([start_listener/1
+    , start_listener/3
+    , stop_listener/1
+    , stop_listener/3
+    , restart_listener/1
+    , restart_listener/3
+]).
 
 -type(listener() :: {esockd:proto(), esockd:listen_on(), [esockd:option()]}).
 
@@ -50,22 +50,22 @@ start_listener({Proto, ListenOn, Options}) ->
     StartRet = start_listener(Proto, ListenOn, Options),
     case StartRet of
         {ok, _} -> io:format("Start mqtt:~s listener on ~s successfully.~n",
-                             [Proto, format(ListenOn)]);
+            [Proto, format(ListenOn)]);
         {error, Reason} ->
             io:format(standard_error, "Failed to start mqtt:~s listener on ~s - ~p~n!",
-                      [Proto, format(ListenOn), Reason])
+                [Proto, format(ListenOn), Reason])
     end,
     StartRet.
 
 %% Start MQTT/TCP listener
 -spec(start_listener(esockd:proto(), esockd:listen_on(), [esockd:option()])
-      -> {ok, pid()} | {error, term()}).
+        -> {ok, pid()} | {error, term()}).
 start_listener(tcp, ListenOn, Options) ->
     start_mqtt_listener('mqtt:tcp', ListenOn, Options);
 
 %% Start Trap listener
 start_listener(trap, ListenOn, Options) ->
-        start_trap_listener('tcp:trap', ListenOn, Options);
+    start_trap_listener('tcp:trap', ListenOn, Options);
 
 
 %% Start MQTT/TLS listener
@@ -75,24 +75,23 @@ start_listener(Proto, ListenOn, Options) when Proto == ssl; Proto == tls ->
 %% Start MQTT/WS listener
 start_listener(Proto, ListenOn, Options) when Proto == http; Proto == ws ->
     start_http_listener(fun cowboy:start_clear/3, 'mqtt:ws', ListenOn,
-                        ranch_opts(Options), ws_opts(Options));
+        ranch_opts(Options), ws_opts(Options));
 
 %% Start MQTT/WSS listener
 start_listener(Proto, ListenOn, Options) when Proto == https; Proto == wss ->
     start_http_listener(fun cowboy:start_tls/3, 'mqtt:wss', ListenOn,
-                        ranch_opts(Options), ws_opts(Options)).
+        ranch_opts(Options), ws_opts(Options)).
 
 start_mqtt_listener(Name, ListenOn, Options) ->
     SockOpts = esockd:parse_opt(Options),
     esockd:open(Name, ListenOn, merge_default(SockOpts),
-                {emqx_connection, start_link, [Options -- SockOpts]}).
+        {emqx_connection, start_link, [Options -- SockOpts]}).
 
 %% Start trap listener
 start_trap_listener(Name, ListenOn, Options) ->
-    io:format("start_trap_listener: Name :~p ListenOn:~p Options:~p ", [Name, ListenOn, Options]),
+    io:format("Start_trap_listener"),
     SockOpts = esockd:parse_opt(Options),
-    esockd:open(Name, ListenOn, merge_default(SockOpts),
-        {emqx_trap_connection, start_link, [Options -- SockOpts]}).
+    esockd:open(Name, ListenOn, merge_default(SockOpts), {emqx_trap_connection, start_link, [Options -- SockOpts]}).
 
 
 
@@ -113,17 +112,17 @@ ranch_opts(Options) ->
     MaxConnections = proplists:get_value(max_connections, Options, 1024),
     TcpOptions = proplists:get_value(tcp_options, Options, []),
     RanchOpts = #{num_acceptors => NumAcceptors,
-                  max_connections => MaxConnections,
-                  socket_opts => TcpOptions},
+        max_connections => MaxConnections,
+        socket_opts => TcpOptions},
     case proplists:get_value(ssl_options, Options) of
-        undefined  -> RanchOpts;
+        undefined -> RanchOpts;
         SslOptions -> RanchOpts#{socket_opts => TcpOptions ++ SslOptions}
     end.
 
 with_port(Port, Opts = #{socket_opts := SocketOption}) when is_integer(Port) ->
-    Opts#{socket_opts => [{port, Port}| SocketOption]};
+    Opts#{socket_opts => [{port, Port} | SocketOption]};
 with_port({Addr, Port}, Opts = #{socket_opts := SocketOption}) ->
-    Opts#{socket_opts => [{ip, Addr}, {port, Port}| SocketOption]}.
+    Opts#{socket_opts => [{ip, Addr}, {port, Port} | SocketOption]}.
 
 %% @doc Restart all listeners
 -spec(restart() -> ok).
@@ -158,15 +157,15 @@ stop_listener({Proto, ListenOn, Opts}) ->
     StopRet = stop_listener(Proto, ListenOn, Opts),
     case StopRet of
         ok -> io:format("Stop mqtt:~s listener on ~s successfully.~n",
-                        [Proto, format(ListenOn)]);
+            [Proto, format(ListenOn)]);
         {error, Reason} ->
             io:format(standard_error, "Failed to stop mqtt:~s listener on ~s - ~p~n.",
-                      [Proto, format(ListenOn), Reason])
+                [Proto, format(ListenOn), Reason])
     end,
     StopRet.
 
 -spec(stop_listener(esockd:proto(), esockd:listen_on(), [esockd:option()])
-      -> ok | {error, term()}).
+        -> ok | {error, term()}).
 stop_listener(tcp, ListenOn, _Opts) ->
     esockd:close('mqtt:tcp', ListenOn);
 stop_listener(Proto, ListenOn, _Opts) when Proto == ssl; Proto == tls ->

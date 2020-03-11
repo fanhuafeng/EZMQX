@@ -12,10 +12,10 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/2]).
+-export([start_link/3]).
 
 %% gen_server callbacks
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2,
+-export([init/4, handle_call/3, handle_cast/2, handle_info/2, terminate/2,
     code_change/3]).
 
 -define(SERVER, ?MODULE).
@@ -25,21 +25,35 @@
 %%%===================================================================
 %%% API
 %%%===================================================================
-start_link(Transport, Socket) ->
-    {ok, proc_lib:spawn_link(?MODULE, init, [[Transport, Socket]])}.
-init([Transport, Socket]) ->
-    case Transport:wait(Socket) of
+start_link(Transport, Socket, Options) ->
+    Args = [self(), Transport, Socket, Options],
+    CPid = proc_lib:spawn_link(?MODULE, init, Args),
+    {ok, CPid}.
+
+init(_Parent, Transport, RawSocket, _Options) ->
+    case Transport:wait(RawSocket) of
         {ok, NewSocket} ->
             {ok, {IP, Port}} = Transport:peername(NewSocket),
             io:format("New socket connected: Ip is :~p and port is ~p ~n", [IP, Port]),
-            Transport:setopts(Socket, [{active, once}]),
+            Transport:setopts(RawSocket, [{active, once}]),
             %% 先挂起来等认证,防止恶意连接
             %% erlang:send_after(3000, self(), wait_for_auth),
             %% 进入下一次循环
             gen_server:enter_loop(?MODULE, [], #emqx_trap_connection_state{});
         {error, Reason} ->
+            ok = Transport:fast_close(RawSocket),
+            exit_on_sock_error(Reason),
             {stop, Reason}
     end.
+exit_on_sock_error(Reason) when Reason =:= einval;
+    Reason =:= enotconn;
+    Reason =:= closed ->
+    erlang:exit(normal);
+exit_on_sock_error(timeout) ->
+    erlang:exit({shutdown, ssl_upgrade_timeout});
+exit_on_sock_error(Reason) ->
+    erlang:exit({shutdown, Reason}).
+
 %% @private
 %% @doc Handling call messages
 -spec(handle_call(Request :: term(), From :: {pid(), Tag :: term()},
