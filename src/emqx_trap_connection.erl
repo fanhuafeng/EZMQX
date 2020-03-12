@@ -12,7 +12,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/3]).
+-export([start_link/3, init/1]).
 
 %% gen_server callbacks
 -export([init/4, handle_call/3, handle_cast/2, handle_info/2, terminate/2,
@@ -29,7 +29,10 @@ start_link(Transport, Socket, Options) ->
     Args = [self(), Transport, Socket, Options],
     CPid = proc_lib:spawn_link(?MODULE, init, Args),
     {ok, CPid}.
-
+%%
+%% OTP的默认回调,留空
+init(_) ->
+    ok.
 init(_Parent, Transport, RawSocket, _Options) ->
     case Transport:wait(RawSocket) of
         {ok, NewSocket} ->
@@ -86,3 +89,4 @@ code_change(_OldVsn, State, _Extra) ->
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
+
