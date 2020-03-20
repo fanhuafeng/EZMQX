@@ -63,8 +63,8 @@ handle_call(_Request, _From, State) ->
 %% 消息接收处理
 %%
 
-handle_info({tcp, RemoteSocket, BinData}, #emqx_trap_connection_state{transport = Transport, socket = RawSocket} = State) ->
-    Transport:setopts(RawSocket, [{active, once}]),
+handle_info({tcp, RemoteSocket, BinData}, #emqx_trap_connection_state{transport = Transport} = State) ->
+    Transport:setopts(RemoteSocket, [{active, once}]),
     io:format("From: ~p ~p ~n", [RemoteSocket, BinData]),
     {noreply, State};
 
