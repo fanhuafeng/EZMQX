@@ -20,7 +20,7 @@
 
 -define(SERVER, ?MODULE).
 
--record(emqx_trap_connection_state, {}).
+-record(emqx_trap_connection_state, {transport, socket}).
 
 %%%===================================================================
 %%% API
@@ -40,7 +40,7 @@ init(_Parent, Transport, RawSocket, _Options) ->
             io:format("New socket connected: Ip is :~p and port is ~p ~n", [IP, Port]),
             Transport:setopts(RawSocket, [{active, once}]),
 
-            gen_server:enter_loop(?MODULE, [], #emqx_trap_connection_state{});
+            gen_server:enter_loop(?MODULE, [], #emqx_trap_connection_state{transport = Transport, socket = RawSocket});
         {error, Reason} ->
             ok = Transport:fast_close(RawSocket),
             exit_on_sock_error(Reason),
@@ -63,9 +63,9 @@ handle_call(_Request, _From, State) ->
 %% 消息接收处理
 %%
 
-handle_info({tcp, RemoteSocket, BinData}, State) ->
+handle_info({tcp, RemoteSocket, BinData}, #emqx_trap_connection_state{transport = Transport, socket = RawSocket} = State) ->
+    Transport:setopts(RawSocket, [{active, once}]),
     io:format("From: ~p ~p ~n", [RemoteSocket, BinData]),
-
     {noreply, State};
 
 handle_info({tcp_error, Socket, Reason}, State) ->
