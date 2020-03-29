@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 %%--------------------------------------------------------------------
 %% Copyright (c) 2020 EMQ Technologies Co., Ltd. All Rights Reserved.
 %%
@@ -702,6 +703,8 @@ t_shared_subscriptions_client_terminates_when_qos_eq_2(_) ->
     ?assertEqual(1, counters:get(CRef, 1)),
     process_flag(trap_exit, false).
 =======
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 %%--------------------------------------------------------------------
 %% Copyright (c) 2020 EMQ Technologies Co., Ltd. All Rights Reserved.
 %%
@@ -766,7 +769,11 @@ receive_messages(Count, Msgs) ->
             receive_messages(Count-1, [Msg|Msgs]);
         _Other ->
             receive_messages(Count, Msgs)
+<<<<<<< HEAD
     after 1000 ->
+=======
+    after 100 ->
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
         Msgs
     end.
 
@@ -1309,6 +1316,7 @@ t_publish_overlapping_subscriptions(_) ->
 %% Subsctibe
 %%--------------------------------------------------------------------
 
+<<<<<<< HEAD
 t_subscribe_topic_alias(_) ->
     Topic1 = nth(1, ?TOPICS),
     Topic2 = nth(2, ?TOPICS),
@@ -1336,6 +1344,8 @@ t_subscribe_topic_alias(_) ->
 
     ok = emqtt:disconnect(Client1).
 
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 t_subscribe_no_local(_) ->
     Topic = nth(1, ?TOPICS),
 
@@ -1437,4 +1447,7 @@ t_shared_subscriptions_client_terminates_when_qos_eq_2(_) ->
 
     ?assertEqual(1, counters:get(CRef, 1)),
     process_flag(trap_exit, false).
+<<<<<<< HEAD
 >>>>>>> d2d939da56404872411a324274e59c72049b649c
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 %%--------------------------------------------------------------------
 %% Copyright (c) 2020 EMQ Technologies Co., Ltd. All Rights Reserved.
 %%
@@ -602,6 +603,8 @@ session(InitFields) when is_map(InitFields) ->
               InitFields).
 
 =======
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 %%--------------------------------------------------------------------
 %% Copyright (c) 2020 EMQ Technologies Co., Ltd. All Rights Reserved.
 %%
@@ -1086,6 +1089,7 @@ t_auth_connect(_) ->
 
 t_process_alias(_) ->
     Publish = #mqtt_packet_publish{topic_name = <<>>, properties = #{'Topic-Alias' => 1}},
+<<<<<<< HEAD
     Channel = emqx_channel:set_field(topic_aliases, #{inbound => #{1 => <<"t">>}}, channel()),
     {ok, #mqtt_packet{variable = #mqtt_packet_publish{topic_name = <<"t">>}}, _Chan} =
         emqx_channel:process_alias(#mqtt_packet{variable = Publish}, Channel).
@@ -1106,6 +1110,12 @@ t_packing_alias(_) ->
 
     ?assertMatch({#mqtt_packet{variable = #mqtt_packet_publish{topic_name = <<"z">>}}, _},  emqx_channel:packing_alias(#mqtt_packet{variable = #mqtt_packet_publish{topic_name = <<"z">>}}, channel())).
 
+=======
+    Channel = emqx_channel:set_field(topic_aliases, #{1 => <<"t">>}, channel()),
+    {ok, #mqtt_packet{variable = #mqtt_packet_publish{topic_name = <<"t">>}}, _Chan} =
+        emqx_channel:process_alias(#mqtt_packet{variable = Publish}, Channel).
+
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 t_check_pub_acl(_) ->
     ok = meck:new(emqx_zone, [passthrough, no_history]),
     ok = meck:expect(emqx_zone, enable_acl, fun(_) -> true end),
@@ -1219,4 +1229,7 @@ session(InitFields) when is_map(InitFields) ->
               emqx_session:init(#{zone => channel}, #{receive_maximum => 0}),
               InitFields).
 
+<<<<<<< HEAD
 >>>>>>> d2d939da56404872411a324274e59c72049b649c
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c

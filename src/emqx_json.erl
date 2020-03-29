@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 %%--------------------------------------------------------------------
 %% Copyright (c) 2020 EMQ Technologies Co., Ltd. All Rights Reserved.
 %%
@@ -120,6 +121,8 @@ from_ejson({L}) ->
 from_ejson(T) -> T.
 
 =======
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 %%--------------------------------------------------------------------
 %% Copyright (c) 2020 EMQ Technologies Co., Ltd. All Rights Reserved.
 %%
@@ -177,7 +180,11 @@ encode(Term) ->
 
 -spec(encode(json_term(), encode_options()) -> json_text()).
 encode(Term, Opts) ->
+<<<<<<< HEAD
     to_binary(jiffy:encode(to_ejson(Term), Opts)).
+=======
+    jiffy:encode(to_ejson(Term), Opts).
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 
 -spec(safe_encode(json_term())
       -> {ok, json_text()} | {error, Reason :: term()}).
@@ -240,8 +247,11 @@ from_ejson({L}) ->
     [{Name, from_ejson(Value)} || {Name, Value} <- L];
 from_ejson(T) -> T.
 
+<<<<<<< HEAD
 to_binary(B) when is_binary(B) -> B;
 to_binary(L) when is_list(L) ->
     iolist_to_binary(L).
 
 >>>>>>> d2d939da56404872411a324274e59c72049b649c
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c

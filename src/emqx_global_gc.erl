@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 %%--------------------------------------------------------------------
 %% Copyright (c) 2020 EMQ Technologies Co., Ltd. All Rights Reserved.
 %%
@@ -102,6 +103,8 @@ is_waiting(Pid) ->
     {status, waiting} == process_info(Pid, status).
 
 =======
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 %%--------------------------------------------------------------------
 %% Copyright (c) 2020 EMQ Technologies Co., Ltd. All Rights Reserved.
 %%
@@ -204,4 +207,7 @@ do_gc(Pid) ->
 is_waiting(Pid) ->
     {status, waiting} == process_info(Pid, status).
 
+<<<<<<< HEAD
 >>>>>>> d2d939da56404872411a324274e59c72049b649c
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c

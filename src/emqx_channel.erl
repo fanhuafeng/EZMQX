@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 %%--------------------------------------------------------------------
 %% Copyright (c) 2020 EMQ Technologies Co., Ltd. All Rights Reserved.
 %%
@@ -1392,6 +1393,8 @@ set_field(Name, Value, Channel) ->
     setelement(Pos+1, Channel, Value).
 
 =======
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 %%--------------------------------------------------------------------
 %% Copyright (c) 2020 EMQ Technologies Co., Ltd. All Rights Reserved.
 %%
@@ -1462,7 +1465,11 @@ set_field(Name, Value, Channel) ->
           %% MQTT Will Msg
           will_msg :: maybe(emqx_types:message()),
           %% MQTT Topic Aliases
+<<<<<<< HEAD
           topic_aliases :: emqx_types:topic_aliases(),
+=======
+          topic_aliases :: maybe(map()),
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
           %% MQTT Topic Alias Maximum
           alias_maximum :: maybe(map()),
           %% Timers
@@ -1488,8 +1495,11 @@ set_field(Name, Value, Channel) ->
 
 -type(replies() :: emqx_types:packet() | reply() | [reply()]).
 
+<<<<<<< HEAD
 -define(IS_MQTT_V5, #channel{conninfo = #{proto_ver := ?MQTT_PROTO_V5}}).
 
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 -define(TIMER_TABLE, #{
           alive_timer  => keepalive,
           retry_timer  => retry_delivery,
@@ -1576,9 +1586,12 @@ init(ConnInfo = #{peername := {PeerHost, _Port},
                   },
     #channel{conninfo   = ConnInfo,
              clientinfo = ClientInfo,
+<<<<<<< HEAD
              topic_aliases = #{inbound => #{},
                                outbound => #{}
                               },
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
              timers     = #{},
              conn_state = idle,
              takeover   = false,
@@ -1998,8 +2011,13 @@ handle_out(publish, [], Channel) ->
     {ok, Channel};
 
 handle_out(publish, Publishes, Channel) ->
+<<<<<<< HEAD
     {Packets, NChannel} = do_deliver(Publishes, Channel),
     {ok, {outgoing, Packets}, NChannel};
+=======
+    Packets = do_deliver(Publishes, Channel),
+    {ok, {outgoing, Packets}, Channel};
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 
 handle_out(puback, {PacketId, ReasonCode}, Channel) ->
     {ok, ?PUBACK_PACKET(PacketId, ReasonCode), Channel};
@@ -2013,14 +2031,24 @@ handle_out(pubrel, {PacketId, ReasonCode}, Channel) ->
 handle_out(pubcomp, {PacketId, ReasonCode}, Channel) ->
     {ok, ?PUBCOMP_PACKET(PacketId, ReasonCode), Channel};
 
+<<<<<<< HEAD
 handle_out(suback, {PacketId, ReasonCodes}, Channel = ?IS_MQTT_V5) ->
+=======
+handle_out(suback, {PacketId, ReasonCodes},
+           Channel = #channel{conninfo = #{proto_ver := ?MQTT_PROTO_V5}}) ->
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
     return_suback(?SUBACK_PACKET(PacketId, ReasonCodes), Channel);
 
 handle_out(suback, {PacketId, ReasonCodes}, Channel) ->
     ReasonCodes1 = [emqx_reason_codes:compat(suback, RC) || RC <- ReasonCodes],
     return_suback(?SUBACK_PACKET(PacketId, ReasonCodes1), Channel);
 
+<<<<<<< HEAD
 handle_out(unsuback, {PacketId, ReasonCodes}, Channel = ?IS_MQTT_V5) ->
+=======
+handle_out(unsuback, {PacketId, ReasonCodes},
+           Channel = #channel{conninfo = #{proto_ver := ?MQTT_PROTO_V5}}) ->
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
     return_unsuback(?UNSUBACK_PACKET(PacketId, ReasonCodes), Channel);
 
 handle_out(unsuback, {PacketId, _ReasonCodes}, Channel) ->
@@ -2030,7 +2058,12 @@ handle_out(disconnect, ReasonCode, Channel) when is_integer(ReasonCode) ->
     ReasonName = disconnect_reason(ReasonCode),
     handle_out(disconnect, {ReasonCode, ReasonName}, Channel);
 
+<<<<<<< HEAD
 handle_out(disconnect, {ReasonCode, ReasonName}, Channel = ?IS_MQTT_V5) ->
+=======
+handle_out(disconnect, {ReasonCode, ReasonName}, Channel =
+           #channel{conninfo = #{proto_ver := ?MQTT_PROTO_V5}}) ->
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
     Packet = ?DISCONNECT_PACKET(ReasonCode),
     {ok, [{outgoing, Packet}, {close, ReasonName}], Channel};
 
@@ -2054,9 +2087,15 @@ return_connack(AckPacket, Channel) ->
                                        resuming = false,
                                        pendings = []
                                       },
+<<<<<<< HEAD
             {Packets, NChannel1} = do_deliver(Publishes, NChannel),
             Outgoing = [{outgoing, Packets} || length(Packets) > 0],
             {ok, Replies ++ Outgoing, NChannel1}
+=======
+            Packets = do_deliver(Publishes, NChannel),
+            Outgoing = [{outgoing, Packets} || length(Packets) > 0],
+            {ok, Replies ++ Outgoing, NChannel}
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
     end.
 
 %%--------------------------------------------------------------------
@@ -2064,16 +2103,27 @@ return_connack(AckPacket, Channel) ->
 %%--------------------------------------------------------------------
 
 %% return list(emqx_types:packet())
+<<<<<<< HEAD
 do_deliver({pubrel, PacketId}, Channel) ->
     {[?PUBREL_PACKET(PacketId, ?RC_SUCCESS)], Channel};
 
 do_deliver({PacketId, Msg}, Channel = #channel{clientinfo = ClientInfo =
+=======
+do_deliver({pubrel, PacketId}, _Channel) ->
+    [?PUBREL_PACKET(PacketId, ?RC_SUCCESS)];
+
+do_deliver({PacketId, Msg}, #channel{clientinfo = ClientInfo =
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
                                      #{mountpoint := MountPoint}}) ->
     case ignore_local(Msg, ClientInfo) of
         true ->
             ok = emqx_metrics:inc('delivery.dropped'),
             ok = emqx_metrics:inc('delivery.dropped.no_local'),
+<<<<<<< HEAD
             {[], Channel};
+=======
+            [];
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
         false ->
             ok = emqx_metrics:inc('messages.delivered'),
             Msg1 = emqx_hooks:run_fold('message.delivered',
@@ -2081,21 +2131,33 @@ do_deliver({PacketId, Msg}, Channel = #channel{clientinfo = ClientInfo =
                                        emqx_message:update_expiry(Msg)
                                       ),
             Msg2 = emqx_mountpoint:unmount(MountPoint, Msg1),
+<<<<<<< HEAD
             Packet = emqx_message:to_packet(PacketId, Msg2),
             {NPacket, NChannel} = packing_alias(Packet, Channel),
             {[NPacket], NChannel}
+=======
+            [emqx_message:to_packet(PacketId, Msg2)]
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
     end;
 
 do_deliver([Publish], Channel) ->
     do_deliver(Publish, Channel);
 
 do_deliver(Publishes, Channel) when is_list(Publishes) ->
+<<<<<<< HEAD
     {Packets, NChannel} =
         lists:foldl(fun(Publish, {Acc, Chann}) ->
             {Packets, NChann} = do_deliver(Publish, Chann),
             {Packets ++ Acc, NChann}
         end, {[], Channel}, Publishes),
     {lists:reverse(Packets), NChannel}.
+=======
+    lists:reverse(
+      lists:foldl(
+        fun(Publish, Acc) ->
+                lists:append(do_deliver(Publish, Channel), Acc)
+        end, [], Publishes)).
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 
 ignore_local(#message{flags = #{nl := true}, from = ClientId},
              #{clientid := ClientId}) ->
@@ -2471,8 +2533,13 @@ process_alias(Packet = #mqtt_packet{
                                                           properties = #{'Topic-Alias' := AliasId}
                                                          } = Publish
                          },
+<<<<<<< HEAD
               Channel = ?IS_MQTT_V5 = #channel{topic_aliases = TopicAliases}) ->
     case find_alias(inbound, AliasId, TopicAliases) of
+=======
+              Channel = #channel{topic_aliases = Aliases}) ->
+    case find_alias(AliasId, Aliases) of
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
         {ok, Topic} ->
             NPublish = Publish#mqtt_packet_publish{topic_name = Topic},
             {ok, Packet#mqtt_packet{variable = NPublish}, Channel};
@@ -2484,13 +2551,20 @@ process_alias(#mqtt_packet{
                                                  properties = #{'Topic-Alias' := AliasId}
                                                 }
                 },
+<<<<<<< HEAD
               Channel = ?IS_MQTT_V5 = #channel{topic_aliases = TopicAliases}) ->
     NTopicAliases = save_alias(inbound, AliasId, Topic, TopicAliases),
     {ok, Channel#channel{topic_aliases = NTopicAliases}};
+=======
+              Channel = #channel{topic_aliases = Aliases}) ->
+    NAliases = save_alias(AliasId, Topic, Aliases),
+    {ok, Channel#channel{topic_aliases = NAliases}};
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 
 process_alias(_Packet, Channel) -> {ok, Channel}.
 
 %%--------------------------------------------------------------------
+<<<<<<< HEAD
 %% Packing Topic Alias
 
 packing_alias(Packet = #mqtt_packet{
@@ -2523,6 +2597,8 @@ packing_alias(Packet = #mqtt_packet{
 packing_alias(Packet, Channel) -> {Packet, Channel}.
 
 %%--------------------------------------------------------------------
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 %% Check Pub Alias
 
 check_pub_alias(#mqtt_packet{
@@ -2595,7 +2671,11 @@ enrich_subid(_Properties, TopicFilters) -> TopicFilters.
 %%--------------------------------------------------------------------
 %% Enrich SubOpts
 
+<<<<<<< HEAD
 enrich_subopts(SubOpts, _Channel = ?IS_MQTT_V5) ->
+=======
+enrich_subopts(SubOpts, #channel{conninfo = #{proto_ver := ?MQTT_PROTO_V5}}) ->
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
     SubOpts;
 enrich_subopts(SubOpts, #channel{clientinfo = #{zone := Zone, is_bridge := IsBridge}}) ->
     NL = flag(emqx_zone:ignore_loop_deliver(Zone)),
@@ -2604,7 +2684,12 @@ enrich_subopts(SubOpts, #channel{clientinfo = #{zone := Zone, is_bridge := IsBri
 %%--------------------------------------------------------------------
 %% Enrich ConnAck Caps
 
+<<<<<<< HEAD
 enrich_connack_caps(AckProps, ?IS_MQTT_V5 = #channel{clientinfo = #{zone := Zone}}) ->
+=======
+enrich_connack_caps(AckProps, #channel{conninfo   = #{proto_ver := ?MQTT_PROTO_V5},
+                                       clientinfo = #{zone := Zone}}) ->
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
     #{max_packet_size       := MaxPktSize,
       max_qos_allowed       := MaxQoS,
       retain_available      := Retain,
@@ -2776,6 +2861,7 @@ run_hooks(Name, Args) ->
 run_hooks(Name, Args, Acc) ->
     ok = emqx_metrics:inc(Name), emqx_hooks:run_fold(Name, Args, Acc).
 
+<<<<<<< HEAD
 -compile({inline, [find_alias/3, save_alias/4]}).
 
 find_alias(_, _ ,undefined) -> false;
@@ -2791,6 +2877,18 @@ save_alias(inbound, AliasId, Topic, TopicAliases = #{inbound := Aliases}) ->
 save_alias(outbound, AliasId, Topic, TopicAliases = #{outbound := Aliases}) ->
     NAliases = maps:put(Topic, AliasId, Aliases),
     TopicAliases#{outbound => NAliases}.
+=======
+-compile({inline, [find_alias/2, save_alias/3]}).
+
+find_alias(_AliasId, undefined) -> false;
+find_alias(AliasId, Aliases) ->
+    maps:find(AliasId, Aliases).
+
+save_alias(AliasId, Topic, undefined) ->
+    #{AliasId => Topic};
+save_alias(AliasId, Topic, Aliases) ->
+    maps:put(AliasId, Topic, Aliases).
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
 
 -compile({inline, [reply/2, shutdown/2, shutdown/3, sp/1, flag/1]}).
 
@@ -2812,8 +2910,13 @@ shutdown(success, Reply, Packet, Channel) ->
 shutdown(Reason, Reply, Packet, Channel) ->
     {shutdown, Reason, Reply, Packet, Channel}.
 
+<<<<<<< HEAD
 disconnect_and_shutdown(Reason, Reply, Channel = ?IS_MQTT_V5
                                                = #channel{conn_state = connected}) ->
+=======
+disconnect_and_shutdown(Reason, Reply, Channel = #channel{conn_state = connected,
+                                                          conninfo = #{proto_ver := ?MQTT_PROTO_V5}}) ->
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
     shutdown(Reason, Reply, ?DISCONNECT_PACKET(reason_code(Reason)), Channel);
 
 disconnect_and_shutdown(Reason, Reply, Channel) ->
@@ -2833,4 +2936,7 @@ set_field(Name, Value, Channel) ->
     Pos = emqx_misc:index_of(Name, record_info(fields, channel)),
     setelement(Pos+1, Channel, Value).
 
+<<<<<<< HEAD
 >>>>>>> d2d939da56404872411a324274e59c72049b649c
+=======
+>>>>>>> b4dcbbb5d3989677061d7094473b1e0d2019281c
