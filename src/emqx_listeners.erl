@@ -167,6 +167,8 @@ stop_listener({Proto, ListenOn, Opts}) ->
         -> ok | {error, term()}).
 stop_listener(tcp, ListenOn, _Opts) ->
     esockd:close('mqtt:tcp', ListenOn);
+stop_listener(trap, ListenOn, _Opts) ->
+    esockd:close('trap:tcp', ListenOn);
 stop_listener(Proto, ListenOn, _Opts) when Proto == ssl; Proto == tls ->
     esockd:close('mqtt:ssl', ListenOn);
 stop_listener(Proto, ListenOn, _Opts) when Proto == http; Proto == ws ->
