@@ -65,7 +65,7 @@ start_listener(tcp, ListenOn, Options) ->
 
 %% Start Trap listener
 start_listener(trap, ListenOn, Options) ->
-    start_trap_listener('tcp:trap', ListenOn, Options);
+    start_trap_listener('trap:tcp', ListenOn, Options);
 
 
 %% Start MQTT/TLS listener
@@ -89,7 +89,6 @@ start_mqtt_listener(Name, ListenOn, Options) ->
 
 %% Start trap listener
 start_trap_listener(Name, ListenOn, Options) ->
-    io:format("Start_trap_listener"),
     SockOpts = esockd:parse_opt(Options),
     esockd:open(Name, ListenOn, merge_default(SockOpts), {emqx_trap_connection, start_link, [Options -- SockOpts]}).
 
@@ -168,6 +167,8 @@ stop_listener({Proto, ListenOn, Opts}) ->
         -> ok | {error, term()}).
 stop_listener(tcp, ListenOn, _Opts) ->
     esockd:close('mqtt:tcp', ListenOn);
+stop_listener(trap, ListenOn, _Opts) ->
+    esockd:close('trap:tcp', ListenOn);
 stop_listener(Proto, ListenOn, _Opts) when Proto == ssl; Proto == tls ->
     esockd:close('mqtt:ssl', ListenOn);
 stop_listener(Proto, ListenOn, _Opts) when Proto == http; Proto == ws ->
