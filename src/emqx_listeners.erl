@@ -49,7 +49,7 @@ start_listener({Proto, ListenOn, Options}) ->
 
     StartRet = start_listener(Proto, ListenOn, Options),
     case StartRet of
-        {ok, _} -> io:format("Start mqtt:~s listener on ~s successfully.~n",
+        {ok, _} -> io:format("Start :~s listener on ~s successfully.~n",
             [Proto, format(ListenOn)]);
         {error, Reason} ->
             io:format(standard_error, "Failed to start mqtt:~s listener on ~s - ~p~n!",
@@ -90,11 +90,12 @@ start_mqtt_listener(Name, ListenOn, Options) ->
 %% Start trap listener
 start_trap_listener(Name, ListenOn, Options) ->
     SockOpts = esockd:parse_opt(Options),
-    esockd:open(Name, ListenOn, merge_default(SockOpts), {emqx_trap_connection, start_link, [Options -- SockOpts]}),
+    MFA = {emqx_trap_connection, start_link, [Options -- SockOpts]},
+    esockd:open(Name, ListenOn, merge_default(SockOpts), MFA ),
     start_urap_listener().
 %% Start UDP listener
 start_urap_listener()->
-    Opts = [{udp_options,  [binary, {reuseaddr, true}]}],
+    Opts = [{udp_options, [binary, {reuseaddr, true}]}],
     MFA = {emqx_urap_connection, start_link, []},
     esockd:open_udp('urap:udp', 1885, Opts, MFA).
 
@@ -172,7 +173,9 @@ stop_listener({Proto, ListenOn, Opts}) ->
         -> ok | {error, term()}).
 stop_listener(tcp, ListenOn, _Opts) ->
     esockd:close('mqtt:tcp', ListenOn);
+%% Stop TTRAP Listener
 stop_listener(trap, ListenOn, _Opts) ->
+    esockd:close('urap:tcp', 1884),
     esockd:close('trap:tcp', ListenOn);
 stop_listener(Proto, ListenOn, _Opts) when Proto == ssl; Proto == tls ->
     esockd:close('mqtt:ssl', ListenOn);

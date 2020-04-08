@@ -12,7 +12,6 @@
 -behaviour(gen_server).
 
 %% API
--export([start/1]).
 -export([start_link/2, init/2]).
 
 %% gen_server callbacks
@@ -22,22 +21,22 @@
 -define(SERVER, ?MODULE).
 -define(UDP_OPTS, [binary, {reuseaddr, true}]).
 
--record(eemqx_urap_state, {}).
+-record(emqx_urap_state, {}).
 
 %%%===================================================================
 %%% API
-%%%===================================================================
-start(Port) ->
-  Opts = [{udp_options, [binary, {reuseaddr, true}]}],
-  MFA = {?MODULE, start_link, []},
-  esockd:open_udp('urap:udp', Port, Opts, MFA).
+% %%%===================================================================
+% start(Port) ->
+%   Opts = [{udp_options, [binary, {reuseaddr, true}]}],
+%   MFA = {?MODULE, start_link, []},
+%   esockd:open_udp('urap:udp', Port, Opts, MFA).
 
 
 start_link(Transport, Peer) ->
   {ok, proc_lib:spawn_link(?MODULE, init, [Transport, Peer])}.
 
 init(_T, _P) ->
-  gen_server:enter_loop(?MODULE, [], #eemqx_urap_state{}).
+  gen_server:enter_loop(?MODULE, [], #emqx_urap_state{}).
 
 init(_) -> ok.
 
