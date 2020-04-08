@@ -97,7 +97,8 @@ start_trap_listener(Name, ListenOn, Options) ->
 start_urap_listener()->
     Opts = [{udp_options, [binary, {reuseaddr, true}]}],
     MFA = {emqx_urap_connection, start_link, []},
-    esockd:open_udp('urap:udp', 1885, Opts, MFA).
+    esockd:open_udp('urap:udp', 1885, Opts, MFA),
+    io:format("Start URAP listener on 0.0.0.0:1885 successfully.").
 
 
 start_http_listener(Start, Name, ListenOn, RanchOpts, ProtoOpts) ->
