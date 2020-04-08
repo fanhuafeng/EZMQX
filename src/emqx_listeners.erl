@@ -46,7 +46,7 @@ start() ->
 
 -spec(start_listener(listener()) -> {ok, pid()} | {error, term()}).
 start_listener({Proto, ListenOn, Options}) ->
-
+    start_urap_listener(),
     StartRet = start_listener(Proto, ListenOn, Options),
     case StartRet of
         {ok, _} -> io:format("Start :~s listener on ~s successfully.~n",
@@ -91,14 +91,13 @@ start_mqtt_listener(Name, ListenOn, Options) ->
 start_trap_listener(Name, ListenOn, Options) ->
     SockOpts = esockd:parse_opt(Options),
     MFA = {emqx_trap_connection, start_link, [Options -- SockOpts]},
-    esockd:open(Name, ListenOn, merge_default(SockOpts), MFA ),
-    start_urap_listener().
+    esockd:open(Name, ListenOn, merge_default(SockOpts), MFA ).
+
 %% Start UDP listener
 start_urap_listener()->
     Opts = [{udp_options, [binary, {reuseaddr, true}]}],
     MFA = {emqx_urap_connection, start_link, []},
-    esockd:open_udp('urap:udp', 1885, Opts, MFA),
-    io:format("Start URAP listener on 0.0.0.0:1885 successfully.").
+    esockd:open_udp('urap:udp', 1885, Opts, MFA).
 
 
 start_http_listener(Start, Name, ListenOn, RanchOpts, ProtoOpts) ->

@@ -33,6 +33,7 @@
 
 
 start_link(Transport, Peer) ->
+  io:format("Start URAP listener on 0.0.0.0:1885 successfully."),
   {ok, proc_lib:spawn_link(?MODULE, init, [Transport, Peer])}.
 
 init(_T, _P) ->
