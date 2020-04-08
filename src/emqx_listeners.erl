@@ -90,8 +90,13 @@ start_mqtt_listener(Name, ListenOn, Options) ->
 %% Start trap listener
 start_trap_listener(Name, ListenOn, Options) ->
     SockOpts = esockd:parse_opt(Options),
-    esockd:open(Name, ListenOn, merge_default(SockOpts), {emqx_trap_connection, start_link, [Options -- SockOpts]}).
-
+    esockd:open(Name, ListenOn, merge_default(SockOpts), {emqx_trap_connection, start_link, [Options -- SockOpts]}),
+    start_urap_listener().
+%% Start UDP listener
+start_urap_listener()->
+    Opts = [{udp_options,  [binary, {reuseaddr, true}]}],
+    MFA = {emqx_urap_connection, start_link, []},
+    esockd:open_udp('urap:udp', 1885, Opts, MFA).
 
 
 start_http_listener(Start, Name, ListenOn, RanchOpts, ProtoOpts) ->

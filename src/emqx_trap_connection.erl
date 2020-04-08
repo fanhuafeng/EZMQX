@@ -7,7 +7,7 @@
 %%% Created : 10. 3月 2020 11:20
 %%%-------------------------------------------------------------------
 -module(emqx_trap_connection).
--author("admin").
+-author("wwhai").
 
 -behaviour(gen_server).
 
