@@ -65,15 +65,16 @@ handle_call(_Request, _From, State) ->
 
 handle_info({tcp, RemoteSocket, BinData}, #emqx_trap_connection_state{transport = Transport} = State) ->
     Transport:setopts(RemoteSocket, [{active, once}]),
-    io:format("From: ~p ~p ~n", [RemoteSocket, BinData]),
+    io:format("Rawdata From: ~p ~n", [RemoteSocket]),
+    binpp:pprint(BinData),
     {noreply, State};
 
 handle_info({tcp_error, Socket, Reason}, State) ->
-    io:format("handle_info tcp_error ~p , Error from: ~p~n", [Reason, Socket]),
+    io:format("Error: ~p  from: ~p~n", [Reason, Socket]),
     {stop, normal, State};
 
 handle_info({tcp_closed, Socket}, State) ->
-    io:format("tcp_closed  ~p~n", [Socket]),
+    io:format("Socket:~p closed. ~n", [Socket]),
 
     {stop, normal, State};
 
