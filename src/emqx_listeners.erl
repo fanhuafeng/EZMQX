@@ -90,7 +90,7 @@ start_mqtt_listener(Name, ListenOn, Options) ->
 %% Start trap listener
 start_trap_listener(Name, ListenOn, Options) ->
     start_urap_listener(),
-    io:format("Start URAP listener on 0.0.0.0:1885 successfully."),
+    io:format("Start URAP listener on 0.0.0.0:1885 successfully.~n"),
     SockOpts = esockd:parse_opt(Options),
     MFA = {emqx_trap_connection, start_link, [Options -- SockOpts]},
     esockd:open(Name, ListenOn, merge_default(SockOpts), MFA ).
